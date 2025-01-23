@@ -12,7 +12,7 @@ readme = "README.md"
 image = "*"
 ndarray = "0.15.6"
 ort = { version = "1.15.2", features = ["load-dynamic"] }
-nshare = { version = "0.9.0", features = ["ndarray"] }
+nshare = { version = "*", features = ["ndarray"] }
 imageproc = { version = "*", optional = true }
 reqwest = { version = "0.11.18", features = ["blocking"] }
 home = "0.5.5"
