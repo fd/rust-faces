@@ -8,7 +8,6 @@ use ort::{
 use crate::{
     blazeface::BlazeFaceParams,
     detection::{FaceDetector, RustFacesResult},
-    model_repository::{GitHubRepository, ModelRepository},
     BlazeFace, MtCnn, MtCnnParams,
 };
 
@@ -20,8 +19,7 @@ pub enum FaceDetection {
 
 #[derive(Clone, Debug)]
 enum OpenMode {
-    File(String),
-    Download,
+    File(Vec<String>),
 }
 
 /// Runtime inference provider. Some may not be available depending of your Onnx runtime installation.
@@ -74,7 +72,7 @@ impl FaceDetectorBuilder {
     pub fn new(detector: FaceDetection) -> Self {
         Self {
             detector,
-            open_mode: OpenMode::Download,
+            open_mode: OpenMode::File(vec![]),
             infer_params: InferParams::default(),
         }
     }
@@ -84,14 +82,8 @@ impl FaceDetectorBuilder {
     /// # Arguments
     ///
     /// * `path` - Path to the model file.
-    pub fn from_file(mut self, path: String) -> Self {
-        self.open_mode = OpenMode::File(path);
-        self
-    }
-
-    /// Sets the model to be downloaded from the model repository.
-    pub fn download(mut self) -> Self {
-        self.open_mode = OpenMode::Download;
+    pub fn from_file(mut self, paths: Vec<String>) -> Self {
+        self.open_mode = OpenMode::File(paths);
         self
     }
 
@@ -139,15 +131,9 @@ impl FaceDetectorBuilder {
         };
 
         let env = Arc::new(ort_builder.build()?);
-        let repository = GitHubRepository::new();
 
         let model_paths = match &self.open_mode {
-            OpenMode::Download => repository
-                .get_model(&self.detector)?
-                .iter()
-                .map(|path| path.to_str().unwrap().to_string())
-                .collect(),
-            OpenMode::File(path) => vec![path.clone()],
+            OpenMode::File(paths) => paths.clone(),
         };
 
         match &self.detector {

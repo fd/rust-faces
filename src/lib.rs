@@ -30,4 +30,3 @@ pub mod viz;
 
 pub use builder::{FaceDetection, FaceDetectorBuilder, InferParams, Provider};
 
-mod model_repository;
